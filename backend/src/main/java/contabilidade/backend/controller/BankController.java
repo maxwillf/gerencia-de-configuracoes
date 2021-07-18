@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class BankController {
@@ -29,10 +30,10 @@ public class BankController {
     }
 
     @PostMapping ("/account/{accountId}/credit")
-    public String creditOperation(@PathVariable("accountId") String accountId,@RequestBody String credit) {
+    public String creditOperation(@PathVariable("accountId") String accountId,@RequestBody Map<String,String> creditJson) {
         Double creditValue = 0.0;
         try{
-            creditValue = Double.parseDouble(credit);
+            creditValue = Double.parseDouble(creditJson.get("value"));
             if(creditValue <= 0){
                 return "Valor de crédito inválido.";
             }
@@ -44,15 +45,15 @@ public class BankController {
             }
             return "Conta inexistente. Operação de crédito inválida";
         } catch (Exception e){
-            return "Valor de debito inválido.";
+            return "Valor de crédito inválido.";
         }
     }
 
     @PostMapping ("/account/{accountId}/debit")
-    public String debitOperation(@PathVariable("accountId") String accountId,@RequestBody String debit) {
+    public String debitOperation(@PathVariable("accountId") String accountId,@RequestBody Map<String,String> debitJson) {
         Double debitValue = 0.0;
         try{
-            debitValue = Double.parseDouble(debit);
+            debitValue = Double.parseDouble(debitJson.get("value"));
             if(debitValue <= 0){
                 return "Valor de debito inválido.";
             }
@@ -71,7 +72,7 @@ public class BankController {
     @PostMapping ("/account/{fromAccountId}/transfer/{toAccountId}")
     public String debitOperation(@PathVariable("fromAccountId") String fromAccountId,
                                  @PathVariable("toAccountId") String toAccountId,
-                                 @RequestBody String transfer) {
+                                 @RequestBody Map<String,String> transferJson) {
         Double transferValue = 0.0;
         AccountModel fromAccount = null;
         AccountModel toAccount = null;
@@ -90,7 +91,7 @@ public class BankController {
             return "Conta de crédito da transferência inexistente";
         }
         try{
-            transferValue = Double.parseDouble(transfer);
+            transferValue = Double.parseDouble(transferJson.get("value"));
             if(transferValue <= 0){
                 return "Valor de transferencia inválido.";
             }
