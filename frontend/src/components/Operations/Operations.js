@@ -11,6 +11,7 @@ export function Operations({ title, message, endpoint, addToast }) {
     event.preventDefault();
 
     if (operation === 'transfer') {
+      console.log('oi');
       axios
         .post(`${endpoint}${accountId}/${operation}/${toAccountId}`, {
           value: value.toString(),
@@ -22,7 +23,9 @@ export function Operations({ title, message, endpoint, addToast }) {
             addToast('info', response.data);
           }
         })
-        .catch((error) => addToast('warning', error))
+        .catch((error) => {
+          addToast('error', 'Falha ao carregar os dados');
+        })
         .finally(() => {
           setAccountId('');
           setValue('');
@@ -40,7 +43,9 @@ export function Operations({ title, message, endpoint, addToast }) {
             addToast('info', response.data);
           }
         })
-        .catch((error) => addToast('warning', error))
+        .catch((error) => {
+          addToast('error', 'Falha ao carregar os dados');
+        })
         .finally(() => {
           setAccountId('');
           setValue('');
@@ -58,10 +63,9 @@ export function Operations({ title, message, endpoint, addToast }) {
               className="form-select"
               aria-label="operations"
               onChange={(event) => setOperation(event.target.value)}
+              value={operation}
             >
-              <option value="credit" selected>
-                Crédito
-              </option>
+              <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
               <option value="transfer">Transferência</option>
             </select>

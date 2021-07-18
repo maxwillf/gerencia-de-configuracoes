@@ -19,7 +19,9 @@ export function Account({ title, message, method, endpoint, addToast }) {
             addToast('info', response.data);
           }
         })
-        .catch((error) => addToast('warning', error))
+        .catch((error) => {
+          addToast('error', 'Falha ao carregar os dados');
+        })
         .finally(() => setAccountId(''));
     } else if (method === 'POST') {
       axios
@@ -31,7 +33,9 @@ export function Account({ title, message, method, endpoint, addToast }) {
             addToast('info', response.data);
           }
         })
-        .catch((error) => addToast('warning', error))
+        .catch((error) => {
+          addToast('error', 'Falha ao carregar os dados');
+        })
         .finally(() => setAccountId(''));
     }
   };
