@@ -17,7 +17,6 @@ public class BankController {
     BankController.class
   );
   private List<AccountModel> accounts = new ArrayList<>();
-  private List<SavingsAccountModel> savingsAccounts = new ArrayList<>();
 
   public BankController() {}
 
@@ -153,13 +152,13 @@ public class BankController {
   public String createSavingsAccount(
     @PathVariable("accountId") String accountId
   ) {
-    for (SavingsAccountModel account : savingsAccounts) {
+    for (AccountModel account : accounts) {
       if (account.getAccountId().equals(accountId)) {
         return "Já existe uma conta com este Id. Tente novamente";
       }
     }
 
-    savingsAccounts.add(new SavingsAccountModel(accountId, 0.0));
+    accounts.add(new SavingsAccountModel(accountId, 0.0));
 
     return "Conta poupança criada com sucesso. Saldo: 0";
   }
@@ -178,9 +177,12 @@ public class BankController {
         return "Taxa de juros informada é inválida.";
       }
 
-      for (SavingsAccountModel account : savingsAccounts) {
+      for (AccountModel account : accounts) {
         if (account.getAccountId().equals(accountId)) {
-          account.setAccountBalance(account.getAccountBalance() * percentageRate);
+          if(!(account instanceof SavingsAccountModel)){
+            return "Tipo de conta incorreto. Apenas Contas poupança podem utilizar esta operação";
+          }
+          account.setAccountBalance(account.getAccountBalance() + account.getAccountBalance() * percentageRate);
 
           return "Saldo: " + account.getAccountBalance();
         }

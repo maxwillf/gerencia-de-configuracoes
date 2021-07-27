@@ -8,10 +8,11 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SavingsAccountModel extends AccountModel {
 
+  public SavingsAccountModel(){
+    super("0",0.0);
+  }
+
   public SavingsAccountModel(String accountId, Double accountBalance) {
     super(accountId, accountBalance);
   }
-
-  String accountId;
-  Double accountBalance;
 }
