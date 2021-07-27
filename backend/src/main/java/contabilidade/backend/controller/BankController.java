@@ -1,6 +1,7 @@
 package contabilidade.backend.controller;
 
 import contabilidade.backend.model.AccountModel;
+import contabilidade.backend.model.BonusAccount;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +48,11 @@ public class BankController {
             for (AccountModel account : accounts) {
                 if (account.getAccountId().equals(accountId)) {
                     account.setAccountBalance(account.getAccountBalance() + creditValue);
+                    if(account instanceof  BonusAccount){
+                        BonusAccount bonusAccount = (BonusAccount) account;
+                        bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (creditValue / 100));
+                        return "Conta creditada com sucesso. Saldo: " + account.getAccountBalance() + ", Pontos: " + bonusAccount.getBonusPoints();
+                    }
                     return "Conta creditada com sucesso. Saldo: " + account.getAccountBalance();
                 }
             }
@@ -83,7 +89,7 @@ public class BankController {
     }
 
     @PostMapping("/account/{fromAccountId}/transfer/{toAccountId}")
-    public String debitOperation(@PathVariable("fromAccountId") String fromAccountId,
+    public String transferOperation(@PathVariable("fromAccountId") String fromAccountId,
             @PathVariable("toAccountId") String toAccountId, @RequestBody Map<String, String> transferJson) {
         Double transferValue = 0.0;
         AccountModel fromAccount = null;
@@ -115,7 +121,12 @@ public class BankController {
             fromAccount.setAccountBalance(fromAccount.getAccountBalance() - transferValue);
             toAccount.setAccountBalance(toAccount.getAccountBalance() + transferValue);
 
-            return "Valor transferido com sucesso";
+            if(toAccount instanceof BonusAccount){
+                BonusAccount bonusAccount = (BonusAccount) toAccount;
+                bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (transferValue / 200));
+                return "Valor transferido com sucesso. Saldo: " + bonusAccount.getAccountBalance() + ", Pontos: " + bonusAccount.getBonusPoints();
+            }
+            return "Valor transferido com sucesso. Saldo: " + toAccount.getAccountBalance();
         } catch (Exception e) {
             return "Falha na operação de transferencia";
         }
@@ -130,5 +141,16 @@ public class BankController {
         }
 
         return "Conta inexistente";
+    }
+
+    @PostMapping("/bonus/create/{accountId}")
+    public String createBonusAccount(@PathVariable("accountId") String accountId) {
+        for (AccountModel account : accounts) {
+            if (account.getAccountId().equals(accountId)) {
+                return "Já existe uma conta com este Id. Tente novamente";
+            }
+        }
+        accounts.add(new BonusAccount(accountId, 0.0));
+        return "Conta criada com sucesso. Saldo: 0, Pontos: 10";
     }
 }
