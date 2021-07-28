@@ -1,6 +1,13 @@
 import axios from 'axios';
 import React, { useState } from 'react';
 
+import { path } from '../../constants';
+
+const EndpointNewAccount = {
+  simple: `${path}/account/create/`,
+  bonus: `${path}/bonus/create/`,
+}
+
 export function Account({ title, message, method, endpoint, addToast }) {
   const [accountId, setAccountId] = useState('');
   const [accountType, setAccountType] = useState('simple');
@@ -26,7 +33,7 @@ export function Account({ title, message, method, endpoint, addToast }) {
         .finally(() => setAccountId(''));
     } else if (method === 'POST') {
       axios
-        .post(`${endpoint}${accountId}`)
+        .post(`${EndpointNewAccount[accountType]}${accountId}`)
         .then((response) => {
           if (response.data.includes('Saldo')) {
             addToast('success', response.data);
