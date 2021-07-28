@@ -6,6 +6,7 @@ import { path } from '../../constants';
 const EndpointNewAccount = {
   simple: `${path}/account/create/`,
   bonus: `${path}/bonus/create/`,
+  savings: `${path}/savings/create/`,
 }
 
 export function Account({ title, message, method, endpoint, addToast }) {
@@ -75,6 +76,17 @@ export function Account({ title, message, method, endpoint, addToast }) {
                 onChange={(event) => setAccountType(event.target.value)}
               />
               Conta Bônus
+            </label>
+
+            <label className="m-2">
+              <input
+                className="m-2"
+                type="radio"
+                value="savings"
+                checked={accountType === "savings"}
+                onChange={(event) => setAccountType(event.target.value)}
+              />
+              Conta Poupança
             </label>
           </div>
         </div>
