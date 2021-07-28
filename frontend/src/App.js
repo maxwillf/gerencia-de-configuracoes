@@ -1,6 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useRef, useState } from 'react';
 import { Account, Operations, ToastPortal } from './components';
+import { path } from './constants';
 
 function App() {
   const [selectedOption, setSelectedOption] = useState('NewAccount');
@@ -10,8 +11,6 @@ function App() {
   const addToast = (mode, message) => {
     toastRef.current.addMessage({ mode, message });
   };
-
-  const path = 'http://localhost:8080';
 
   return (
     <div className="container">

@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class AccountModel {
-
   public AccountModel() {
     this.accountId = "";
     this.accountBalance = 0.0;
