@@ -68,6 +68,7 @@ export function Operations({ title, message, endpoint, addToast }) {
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
               <option value="transfer">Transferência</option>
+              <option value="interest">Render Juros</option>
             </select>
           </div>
           <div className="col-sm col-lg-3">
@@ -92,7 +93,11 @@ export function Operations({ title, message, endpoint, addToast }) {
               id="value"
               value={value}
               onChange={(event) => setValue(event.target.value)}
-              placeholder="Valor que deseja transferir"
+              placeholder={
+                operation === 'interest'
+                  ? "Taxa de juros que deseja acrescentar"
+                  : "Valor que deseja transferir"
+              }
             />
           </div>
           {operation === 'transfer' ? (
