@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 
 export function Account({ title, message, method, endpoint, addToast }) {
   const [accountId, setAccountId] = useState('');
+  const [accountType, setAccountType] = useState('simple');
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -43,6 +44,35 @@ export function Account({ title, message, method, endpoint, addToast }) {
   return (
     <>
       <h3 className="mt-3">{title}</h3>
+
+      {method === 'POST' && (
+        <div className="row my-2">
+          <div className="radio">
+            <label className="m-2">
+              <input
+                className="m-2"
+                type="radio"
+                value="simple"
+                checked={accountType === "simple"}
+                onChange={(event) => setAccountType(event.target.value)}
+              />
+              Conta Simples
+            </label>
+
+            <label className="m-2">
+              <input
+                className="m-2"
+                type="radio"
+                value="bonus"
+                checked={accountType === "bonus"}
+                onChange={(event) => setAccountType(event.target.value)}
+              />
+              Conta Bônus
+            </label>
+          </div>
+        </div>
+      )}
+
       <form onSubmit={onSubmit}>
         <div className="row">
           <div className="col-sm col-lg-4">
