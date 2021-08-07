@@ -80,6 +80,15 @@ public class BankController {
 
       for (AccountModel account : accounts) {
         if (account.getAccountId().equals(accountId)) {
+            Double minSimpleAndBonusAccountBalance = -1000.0;
+            if(account.getAccountBalance() - debitValue <= minSimpleAndBonusAccountBalance){
+                if(account instanceof BonusAccount){
+                    return "Falha na operaçao. Contas bonus nao podem ter saldo inferior a -1000.0";
+                }
+               if(account instanceof AccountModel){
+                   return "Falha na operaçao. Contas simples nao podem ter saldo inferior a -1000.0";
+               }
+            }
           account.setAccountBalance(account.getAccountBalance() - debitValue);
           return (
             "Conta debitada com sucesso. Saldo: " + account.getAccountBalance()
@@ -147,6 +156,15 @@ public class BankController {
                 return "Valor de transferencia inválido.";
             }
 
+            Double minSimpleAndBonusAccountBalance = -1000.0;
+            if(fromAccount.getAccountBalance() - transferValue <= minSimpleAndBonusAccountBalance){
+                if(fromAccount instanceof BonusAccount){
+                    return "Falha na operaçao. Contas bonus nao podem ter saldo inferior a -1000.0";
+                }
+                if(fromAccount instanceof AccountModel){
+                    return "Falha na operaçao. Contas simples nao podem ter saldo inferior a -1000.0";
+                }
+            }
             fromAccount.setAccountBalance(
                     fromAccount.getAccountBalance() - transferValue
             );
