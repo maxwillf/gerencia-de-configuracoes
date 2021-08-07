@@ -1,5 +1,11 @@
 import axios from 'axios';
 import React, { useState } from 'react';
+import { path } from '../../constants';
+
+const EndpointOperations = {
+  base: `${path}/account/`,
+  interest: `${path}/savings/interest/`,
+}
 
 export function Operations({ title, message, endpoint, addToast }) {
   const [accountId, setAccountId] = useState('');
@@ -10,10 +16,29 @@ export function Operations({ title, message, endpoint, addToast }) {
   const onSubmit = (event) => {
     event.preventDefault();
 
-    if (operation === 'transfer') {
+    if (operation === 'interest') {
+      axios
+        .post(`${EndpointOperations.interest}${accountId}`, {
+          percentage_rate: value.toString(),
+        })
+        .then((response) => {
+          if (response.data.includes('Saldo')) {
+            addToast('success', response.data);
+          } else {
+            addToast('info', response.data);
+          }
+        })
+        .catch((error) => {
+          addToast('error', 'Falha ao carregar os dados');
+        })
+        .finally(() => {
+          setAccountId('');
+          setValue('');
+        });
+    } else if (operation === 'transfer') {
       console.log('oi');
       axios
-        .post(`${endpoint}${accountId}/${operation}/${toAccountId}`, {
+        .post(`${EndpointOperations.base}${accountId}/${operation}/${toAccountId}`, {
           value: value.toString(),
         })
         .then((response) => {
@@ -33,7 +58,7 @@ export function Operations({ title, message, endpoint, addToast }) {
         });
     } else {
       axios
-        .post(`${endpoint}${accountId}/${operation}`, {
+        .post(`${EndpointOperations.base}${accountId}/${operation}`, {
           value: value.toString(),
         })
         .then((response) => {
@@ -68,6 +93,7 @@ export function Operations({ title, message, endpoint, addToast }) {
               <option value="credit">Crédito</option>
               <option value="debit">Débito</option>
               <option value="transfer">Transferência</option>
+              <option value="interest">Render Juros</option>
             </select>
           </div>
           <div className="col-sm col-lg-3">
@@ -92,7 +118,11 @@ export function Operations({ title, message, endpoint, addToast }) {
               id="value"
               value={value}
               onChange={(event) => setValue(event.target.value)}
-              placeholder="Valor que deseja transferir"
+              placeholder={
+                operation === 'interest'
+                  ? "Taxa de juros que deseja acrescentar"
+                  : "Valor que deseja transferir"
+              }
             />
           </div>
           {operation === 'transfer' ? (
