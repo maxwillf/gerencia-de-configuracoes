@@ -106,16 +106,22 @@ public class BankController {
 
   @PostMapping("/savings/create/{accountId}")
   public String createSavingsAccount(
-    @PathVariable("accountId") String accountId
+    @PathVariable("accountId") String accountId,
+    @RequestBody Map<String, String> createAccountJson
   ) {
     for (AccountModel account : accounts) {
       if (account.getAccountId().equals(accountId)) {
         return "Já existe uma conta com este Id. Tente novamente";
       }
     }
-      accounts.add(new SavingsAccountModel(accountId, 0.0));
-
-      return "Conta poupança criada com sucesso. Saldo: 0";
+    try {
+        Double accountBalance = Double.parseDouble(createAccountJson.get("balance"));
+        accounts.add(new SavingsAccountModel(accountId, accountBalance));
+        return "Conta poupança criada com sucesso. Saldo: " + accountBalance;
+    }
+    catch(Exception e){
+        return " Falha na criaçao de conta. Saldo da conta nao informado";
+    }
   }
 
     @PostMapping("/account/{fromAccountId}/transfer/{toAccountId}")
