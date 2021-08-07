@@ -1,14 +1,14 @@
 package contabilidade.backend.controller;
 
 import contabilidade.backend.model.AccountModel;
-import contabilidade.backend.model.SavingsAccountModel;
 import contabilidade.backend.model.BonusAccount;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import contabilidade.backend.model.SavingsAccountModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -47,17 +47,26 @@ public class BankController {
       if (creditValue <= 0) {
         return "Valor de crédito inválido.";
       }
-            for (AccountModel account : accounts) {
-                if (account.getAccountId().equals(accountId)) {
-                    account.setAccountBalance(account.getAccountBalance() + creditValue);
-                    if(account instanceof  BonusAccount){
-                        BonusAccount bonusAccount = (BonusAccount) account;
-                        bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (creditValue / 100));
-                        return "Conta creditada com sucesso. Saldo: " + account.getAccountBalance() + ", Pontos: " + bonusAccount.getBonusPoints();
-                    }
-                    return "Conta creditada com sucesso. Saldo: " + account.getAccountBalance();
-                }
-            }
+      for (AccountModel account : accounts) {
+        if (account.getAccountId().equals(accountId)) {
+          account.setAccountBalance(account.getAccountBalance() + creditValue);
+          if (account instanceof BonusAccount) {
+            BonusAccount bonusAccount = (BonusAccount) account;
+            bonusAccount.setBonusPoints(
+              bonusAccount.getBonusPoints() + (int) (creditValue / 100)
+            );
+            return (
+              "Conta creditada com sucesso. Saldo: " +
+              account.getAccountBalance() +
+              ", Pontos: " +
+              bonusAccount.getBonusPoints()
+            );
+          }
+          return (
+            "Conta creditada com sucesso. Saldo: " + account.getAccountBalance()
+          );
+        }
+      }
       return "Conta inexistente. Operação de crédito inválida";
     } catch (Exception e) {
       return "Valor de crédito inválido.";
@@ -80,6 +89,13 @@ public class BankController {
 
       for (AccountModel account : accounts) {
         if (account.getAccountId().equals(accountId)) {
+          if (
+            account instanceof SavingsAccountModel &&
+            account.getAccountBalance() - debitValue < 0
+          ) {
+            return "A conta poupança não pode ficar com saldo negativo.";
+          }
+
             Double minSimpleAndBonusAccountBalance = -1000.0;
             if(account.getAccountBalance() - debitValue <= minSimpleAndBonusAccountBalance){
                 if(account instanceof BonusAccount){
@@ -89,7 +105,9 @@ public class BankController {
                    return "Falha na operaçao. Contas simples nao podem ter saldo inferior a -1000.0";
                }
             }
+
           account.setAccountBalance(account.getAccountBalance() - debitValue);
+
           return (
             "Conta debitada com sucesso. Saldo: " + account.getAccountBalance()
           );
@@ -101,7 +119,6 @@ public class BankController {
       return "Valor de debito inválido.";
     }
   }
-
 
   @GetMapping("/account/extract/{accountId}")
   public String getExtract(@PathVariable("accountId") String accountId) {
@@ -123,6 +140,7 @@ public class BankController {
         return "Já existe uma conta com este Id. Tente novamente";
       }
     }
+
     try {
         Double accountBalance = Double.parseDouble(createAccountJson.get("balance"));
         accounts.add(new SavingsAccountModel(accountId, accountBalance));
@@ -133,35 +151,44 @@ public class BankController {
     }
   }
 
-    @PostMapping("/account/{fromAccountId}/transfer/{toAccountId}")
-    public String transferOperation(@PathVariable("fromAccountId") String fromAccountId,
-            @PathVariable("toAccountId") String toAccountId, @RequestBody Map<String, String> transferJson) {
-        Double transferValue = 0.0;
-        AccountModel fromAccount = null;
-        AccountModel toAccount = null;
-        for (AccountModel account : accounts) {
-            if (account.getAccountId().equals(fromAccountId)) {
-                fromAccount = account;
-            } else if (account.getAccountId().equals(toAccountId)) {
-                toAccount = account;
-            }
-        }
+  @PostMapping("/account/{fromAccountId}/transfer/{toAccountId}")
+  public String transferOperation(
+    @PathVariable("fromAccountId") String fromAccountId,
+    @PathVariable("toAccountId") String toAccountId,
+    @RequestBody Map<String, String> transferJson
+  ) {
+    Double transferValue = 0.0;
+    AccountModel fromAccount = null;
+    AccountModel toAccount = null;
+    for (AccountModel account : accounts) {
+      if (account.getAccountId().equals(fromAccountId)) {
+        fromAccount = account;
+      } else if (account.getAccountId().equals(toAccountId)) {
+        toAccount = account;
+      }
+    }
 
-        if (fromAccount == null) {
-            return "Conta de débito da transferência inexistente";
-        }
+    if (fromAccount == null) {
+      return "Conta de débito da transferência inexistente";
+    }
 
-        if (toAccount == null) {
-            return "Conta de crédito da transferência inexistente";
-        }
+    if (toAccount == null) {
+      return "Conta de crédito da transferência inexistente";
+    }
 
-        try {
-            transferValue = Double.parseDouble(transferJson.get("value"));
+    try {
+      transferValue = Double.parseDouble(transferJson.get("value"));
 
-            if (transferValue <= 0) {
-                return "Valor de transferencia inválido.";
-            }
+      if (transferValue <= 0) {
+        return "Valor de transferencia inválido.";
+      }
 
+      if (
+        fromAccount instanceof SavingsAccountModel &&
+        fromAccount.getAccountBalance() - transferValue < 0
+      ) {
+        return "A conta poupança não pode ficar com saldo negativo.";
+      }
             Double minSimpleAndBonusAccountBalance = -1000.0;
             if(fromAccount.getAccountBalance() - transferValue <= minSimpleAndBonusAccountBalance){
                 if(fromAccount instanceof BonusAccount){
@@ -178,19 +205,36 @@ public class BankController {
                     toAccount.getAccountBalance() + transferValue
             );
 
-            if(toAccount instanceof BonusAccount){
-                Integer moneyPerBonusPoint = 150;
-                BonusAccount bonusAccount = (BonusAccount) toAccount;
-                bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (transferValue / moneyPerBonusPoint));
-                return "Valor transferido com sucesso. Saldo: " + bonusAccount.getAccountBalance() + ", Pontos: " + bonusAccount.getBonusPoints();
-            }
-            return "Valor transferido com sucesso. Saldo: " + toAccount.getAccountBalance();
-        } catch (Exception e) {
-            return "Falha na operação de transferência";
-        }
-}
+      fromAccount.setAccountBalance(
+        fromAccount.getAccountBalance() - transferValue
+      );
+      toAccount.setAccountBalance(
+        toAccount.getAccountBalance() + transferValue
+      );
 
-    @PostMapping("/savings/interest/{accountId}")
+      if (toAccount instanceof BonusAccount) {
+        Integer moneyPerBonusPoint = 150;
+        BonusAccount bonusAccount = (BonusAccount) toAccount;
+        bonusAccount.setBonusPoints(
+          bonusAccount.getBonusPoints() +
+          (int) (transferValue / moneyPerBonusPoint)
+        );
+        return (
+          "Valor transferido com sucesso. Saldo: " +
+          bonusAccount.getAccountBalance() +
+          ", Pontos: " +
+          bonusAccount.getBonusPoints()
+        );
+      }
+      return (
+        "Valor transferido com sucesso. Saldo: " + toAccount.getAccountBalance()
+      );
+    } catch (Exception e) {
+      return "Falha na operação de transferência";
+    }
+  }
+
+  @PostMapping("/savings/interest/{accountId}")
   public String getEarnInterest(
     @PathVariable("accountId") String accountId,
     @RequestBody Map<String, String> transferJson
@@ -205,10 +249,14 @@ public class BankController {
       }
       for (AccountModel account : accounts) {
         if (account.getAccountId().equals(accountId)) {
-          if(!(account instanceof SavingsAccountModel)){
+          if (!(account instanceof SavingsAccountModel)) {
             return "Tipo de conta incorreto. Apenas Contas poupança podem utilizar esta operação";
           }
-          account.setAccountBalance(account.getAccountBalance() + account.getAccountBalance() * percentageRate);
+          account.setAccountBalance(
+            account.getAccountBalance() +
+            account.getAccountBalance() *
+            percentageRate
+          );
           return "Saldo: " + account.getAccountBalance();
         }
       }
@@ -219,14 +267,16 @@ public class BankController {
     }
   }
 
-    @PostMapping("/bonus/create/{accountId}")
-    public String createBonusAccount(@PathVariable("accountId") String accountId) {
-        for (AccountModel account : accounts) {
-            if (account.getAccountId().equals(accountId)) {
-                return "Já existe uma conta com este Id. Tente novamente";
-            }
-        }
-        accounts.add(new BonusAccount(accountId, 0.0));
-        return "Conta criada com sucesso. Saldo: 0, Pontos: 10";
+  @PostMapping("/bonus/create/{accountId}")
+  public String createBonusAccount(
+    @PathVariable("accountId") String accountId
+  ) {
+    for (AccountModel account : accounts) {
+      if (account.getAccountId().equals(accountId)) {
+        return "Já existe uma conta com este Id. Tente novamente";
+      }
     }
+    accounts.add(new BonusAccount(accountId, 0.0));
+    return "Conta criada com sucesso. Saldo: 0, Pontos: 10";
+  }
 }
