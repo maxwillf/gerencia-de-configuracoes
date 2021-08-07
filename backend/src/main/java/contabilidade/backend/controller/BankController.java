@@ -155,8 +155,9 @@ public class BankController {
             );
 
             if(toAccount instanceof BonusAccount){
+                Integer moneyPerBonusPoint = 150;
                 BonusAccount bonusAccount = (BonusAccount) toAccount;
-                bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (transferValue / 200));
+                bonusAccount.setBonusPoints(bonusAccount.getBonusPoints() + (int) (transferValue / moneyPerBonusPoint));
                 return "Valor transferido com sucesso. Saldo: " + bonusAccount.getAccountBalance() + ", Pontos: " + bonusAccount.getBonusPoints();
             }
             return "Valor transferido com sucesso. Saldo: " + toAccount.getAccountBalance();
