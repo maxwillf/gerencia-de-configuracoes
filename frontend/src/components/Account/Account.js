@@ -7,11 +7,12 @@ const EndpointNewAccount = {
   simple: `${path}/account/create/`,
   bonus: `${path}/bonus/create/`,
   savings: `${path}/savings/create/`,
-}
+};
 
 export function Account({ title, message, method, endpoint, addToast }) {
   const [accountId, setAccountId] = useState('');
   const [accountType, setAccountType] = useState('simple');
+  const [accountBalance, setAccountBalance] = useState('');
 
   const onSubmit = (event) => {
     event.preventDefault();
@@ -31,10 +32,15 @@ export function Account({ title, message, method, endpoint, addToast }) {
         .catch((error) => {
           addToast('error', 'Falha ao carregar os dados');
         })
-        .finally(() => setAccountId(''));
+        .finally(() => {
+          setAccountId('');
+          setAccountBalance('');
+        });
     } else if (method === 'POST') {
+      const balance = accountBalance ? { balance: accountBalance } : {};
+
       axios
-        .post(`${EndpointNewAccount[accountType]}${accountId}`)
+        .post(`${EndpointNewAccount[accountType]}${accountId}`, balance)
         .then((response) => {
           if (response.data.includes('Saldo')) {
             addToast('success', response.data);
@@ -45,7 +51,10 @@ export function Account({ title, message, method, endpoint, addToast }) {
         .catch((error) => {
           addToast('error', 'Falha ao carregar os dados');
         })
-        .finally(() => setAccountId(''));
+        .finally(() => {
+          setAccountId('');
+          setAccountBalance('');
+        });
     }
   };
 
@@ -61,7 +70,7 @@ export function Account({ title, message, method, endpoint, addToast }) {
                 className="m-2"
                 type="radio"
                 value="simple"
-                checked={accountType === "simple"}
+                checked={accountType === 'simple'}
                 onChange={(event) => setAccountType(event.target.value)}
               />
               Conta Simples
@@ -72,7 +81,7 @@ export function Account({ title, message, method, endpoint, addToast }) {
                 className="m-2"
                 type="radio"
                 value="bonus"
-                checked={accountType === "bonus"}
+                checked={accountType === 'bonus'}
                 onChange={(event) => setAccountType(event.target.value)}
               />
               Conta Bônus
@@ -83,7 +92,7 @@ export function Account({ title, message, method, endpoint, addToast }) {
                 className="m-2"
                 type="radio"
                 value="savings"
-                checked={accountType === "savings"}
+                checked={accountType === 'savings'}
                 onChange={(event) => setAccountType(event.target.value)}
               />
               Conta Poupança
@@ -105,6 +114,20 @@ export function Account({ title, message, method, endpoint, addToast }) {
               placeholder="Número da conta"
             />
           </div>
+
+          {accountType === 'savings' ? (
+            <div className="col-sm col-lg-2">
+              <input
+                required="required"
+                type="number"
+                className="form-control"
+                id="accountBalance"
+                value={accountBalance}
+                onChange={(event) => setAccountBalance(event.target.value)}
+                placeholder="Saldo inicial"
+              />
+            </div>
+          ) : null}
 
           <div className="col-sm">
             <button type="submit" className="btn btn-primary">
