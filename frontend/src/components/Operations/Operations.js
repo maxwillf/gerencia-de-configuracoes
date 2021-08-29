@@ -7,7 +7,7 @@ const EndpointOperations = {
   interest: `${path}/savings/interest/`,
 }
 
-export function Operations({ title, message, endpoint, addToast }) {
+export function Operations({ title, message, addToast }) {
   const [accountId, setAccountId] = useState('')
   const [toAccountId, setToAccountId] = useState('')
   const [value, setValue] = useState('')
@@ -28,7 +28,7 @@ export function Operations({ title, message, endpoint, addToast }) {
             addToast('info', response.data)
           }
         })
-        .catch((error) => {
+        .catch(() => {
           addToast('error', 'Falha ao carregar os dados')
         })
         .finally(() => {
@@ -36,7 +36,6 @@ export function Operations({ title, message, endpoint, addToast }) {
           setValue('')
         })
     } else if (operation === 'transfer') {
-      console.log('oi')
       axios
         .post(
           `${EndpointOperations.base}${accountId}/${operation}/${toAccountId}`,
@@ -51,7 +50,7 @@ export function Operations({ title, message, endpoint, addToast }) {
             addToast('info', response.data)
           }
         })
-        .catch((error) => {
+        .catch(() => {
           addToast('error', 'Falha ao carregar os dados')
         })
         .finally(() => {
@@ -71,7 +70,7 @@ export function Operations({ title, message, endpoint, addToast }) {
             addToast('info', response.data)
           }
         })
-        .catch((error) => {
+        .catch(() => {
           addToast('error', 'Falha ao carregar os dados')
         })
         .finally(() => {
