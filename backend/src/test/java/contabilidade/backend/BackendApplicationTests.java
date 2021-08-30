@@ -56,7 +56,7 @@ class BackendApplicationTests {
       )
       .andDo(print())
       .andExpect(
-        content().string("Já existe uma conta com este Id. Tente novamente")
+        content().string("Já existe uma conta com este Id. Tente novamentse")
       );
   }
 
