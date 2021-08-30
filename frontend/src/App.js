@@ -73,7 +73,7 @@ function App() {
       )}
 
       {selectedOption === 'ConsultBalance' && (
-        <div className='row mt-3'>
+        <div className="row mt-3">
           <Account
             method='GET'
             endpoint={`${path}/account/extract/`}
