@@ -30,6 +30,8 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: run tests
+      run: ./gradlew test
   
   build-frontend:
 
@@ -63,3 +65,4 @@ jobs:
   #   - name: Generate
   #     if: github.ref == 'refs/heads/release-**'
   #     run: ...
+
