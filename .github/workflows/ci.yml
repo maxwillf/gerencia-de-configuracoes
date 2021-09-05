@@ -2,9 +2,13 @@ name: Java and Node
 
 on:
   push:
-    branches: [ develop ]
+    branches: 
+      - develop
+      - release-**
   pull_request:
-    branches: [ develop ]
+    branches: 
+      - develop
+      - release-**
 
 jobs:
   build-backend:
@@ -48,3 +52,14 @@ jobs:
 
     - name: Run Eslint
       run: yarn lint
+      
+  # generate-package:
+  #   needs: 
+  #     - build-backend
+  #     - build-frontend
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #   - name: Generate
+  #     if: github.ref == 'refs/heads/release-**'
+  #     run: ...
