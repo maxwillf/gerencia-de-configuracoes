@@ -1,0 +1,13 @@
+{
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^13.1.0",
+    "commitlint-config-jira": "^1.5.1",
+    "commitlint-plugin-jira-rules": "^1.5.1",
+    "husky": "4.2.3"
+  }
+}
