@@ -30,7 +30,7 @@ export function Account({ title, message, method, endpoint, addToast }) {
           }
         })
         .catch(() => {
-          addToast('error', 'Falha ao carregar os dadoss')
+          addToast('error', 'Falha ao carregar os dados')
         })
         .finally(() => {
           setAccountId('')
