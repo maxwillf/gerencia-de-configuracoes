@@ -96,6 +96,16 @@ public class BankController {
             return "A conta poupança não pode ficar com saldo negativo.";
           }
 
+            Double minSimpleAndBonusAccountBalance = -1000.0;
+            if(account.getAccountBalance() - debitValue <= minSimpleAndBonusAccountBalance){
+                if(account instanceof BonusAccount){
+                    return "Falha na operaçao. Contas bonus nao podem ter saldo inferior a -1000.0";
+                }
+               if(account instanceof AccountModel){
+                   return "Falha na operaçao. Contas simples nao podem ter saldo inferior a -1000.0";
+               }
+            }
+
           account.setAccountBalance(account.getAccountBalance() - debitValue);
 
           return (
@@ -122,16 +132,23 @@ public class BankController {
 
   @PostMapping("/savings/create/{accountId}")
   public String createSavingsAccount(
-    @PathVariable("accountId") String accountId
+    @PathVariable("accountId") String accountId,
+    @RequestBody Map<String, String> createAccountJson
   ) {
     for (AccountModel account : accounts) {
       if (account.getAccountId().equals(accountId)) {
         return "Já existe uma conta com este Id. Tente novamente";
       }
     }
-    accounts.add(new SavingsAccountModel(accountId, 0.0));
 
-    return "Conta poupança criada com sucesso. Saldo: 0";
+    try {
+        Double accountBalance = Double.parseDouble(createAccountJson.get("balance"));
+        accounts.add(new SavingsAccountModel(accountId, accountBalance));
+        return "Conta poupança criada com sucesso. Saldo: " + accountBalance;
+    }
+    catch(Exception e){
+        return " Falha na criaçao de conta. Saldo da conta nao informado";
+    }
   }
 
   @PostMapping("/account/{fromAccountId}/transfer/{toAccountId}")
@@ -172,6 +189,21 @@ public class BankController {
       ) {
         return "A conta poupança não pode ficar com saldo negativo.";
       }
+            Double minSimpleAndBonusAccountBalance = -1000.0;
+            if(fromAccount.getAccountBalance() - transferValue <= minSimpleAndBonusAccountBalance){
+                if(fromAccount instanceof BonusAccount){
+                    return "Falha na operaçao. Contas bonus nao podem ter saldo inferior a -1000.0";
+                }
+                if(fromAccount instanceof AccountModel){
+                    return "Falha na operaçao. Contas simples nao podem ter saldo inferior a -1000.0";
+                }
+            }
+            fromAccount.setAccountBalance(
+                    fromAccount.getAccountBalance() - transferValue
+            );
+            toAccount.setAccountBalance(
+                    toAccount.getAccountBalance() + transferValue
+            );
 
       fromAccount.setAccountBalance(
         fromAccount.getAccountBalance() - transferValue
